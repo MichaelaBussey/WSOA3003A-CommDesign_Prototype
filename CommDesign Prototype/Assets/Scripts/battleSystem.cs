@@ -16,7 +16,7 @@ public class battleSystem : MonoBehaviour
     Stats PlayerUnit, EnemyUnit;
     public Transform playerLocation, enemyLocation;
     public BattleHUD playerHUD, enemyHUD;
-    public AudioClip Crit;
+    public AudioClip Crit, Heal, Hit, Miss;
 
 
     void Start()
@@ -48,6 +48,9 @@ public class battleSystem : MonoBehaviour
         {
             int atk1 = Random.Range(3, 6);
             bool isDead = EnemyUnit.TakeDamage(atk1);
+            //ACHIEVED MULTIPLE SOUNDS ON ONE SCRIPT!!
+            GetComponent<AudioSource>().clip = Hit;
+            GetComponent<AudioSource>().Play();
             enemyHUD.HP.text = EnemyUnit.currentHP.ToString();
             State = BattleState.ENEMYTURN;
             CombatLog.text +=  atk1.ToString() + "dmg dealt to enemy." + "\n";
@@ -79,12 +82,14 @@ public class battleSystem : MonoBehaviour
             {
             atk2 = Random.Range(5, 10);
             isDead = EnemyUnit.TakeDamage(atk2);
-            //CombatLog.text = currentHP + "-" + dmg; idk tryna figure out the log
+            GetComponent<AudioSource>().clip = Hit;
+            GetComponent<AudioSource>().Play();
             enemyHUD.HP.text = EnemyUnit.currentHP.ToString();
             CombatLog.text += atk2.ToString() + "dmg dealt to enemy." + "\n";
             CombatLog.color = Color.blue;            
                 if (atk2 >= 7)
                 {
+                    GetComponent<AudioSource>().clip = Crit;
                     GetComponent<AudioSource>().Play();
                     Instantiate(critHit, enemyLocation);
                     CombatLog.text += "It was a critical hit!" + "\n";
@@ -92,6 +97,8 @@ public class battleSystem : MonoBehaviour
             }
             else
             {
+                GetComponent<AudioSource>().clip = Miss;
+                GetComponent<AudioSource>().Play();
                 CombatLog.text += ("Attack missed!" + "\n");
                 CombatLog.color = Color.red;
             }
@@ -120,6 +127,8 @@ public class battleSystem : MonoBehaviour
         {
         int healAmt = Random.Range(2, 6) ;
         PlayerUnit.Heal(healAmt);
+        GetComponent<AudioSource>().clip = Heal;
+        GetComponent<AudioSource>().Play();
         CombatLog.text += "+" + healAmt.ToString() + " HP healed!" + "\n";
         CombatLog.color = Color.green;
         playerHUD.HP.text = PlayerUnit.currentHP.ToString();
@@ -155,6 +164,8 @@ public class battleSystem : MonoBehaviour
         {
             int EnemyAtk = Random.Range(3, 8);
             isDead = PlayerUnit.TakeDamage(EnemyAtk);
+            GetComponent<AudioSource>().clip = Hit;
+            GetComponent<AudioSource>().Play();
             CombatLog.text += EnemyAtk.ToString() + "dmg dealt to you." + "\n";
             CombatLog.color = Color.red;
             playerHUD.HP.text = PlayerUnit.currentHP.ToString();
@@ -162,6 +173,8 @@ public class battleSystem : MonoBehaviour
         }
         else
         {
+            GetComponent<AudioSource>().clip = Miss;
+            GetComponent<AudioSource>().Play();
             CombatLog.text += ("Enemy attack missed!" + "\n");
             CombatLog.color = Color.red;
         }

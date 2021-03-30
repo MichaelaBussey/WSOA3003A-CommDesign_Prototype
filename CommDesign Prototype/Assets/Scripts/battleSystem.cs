@@ -12,15 +12,18 @@ public class battleSystem : MonoBehaviour
 {
     public BattleState State;
     public Text CombatLog;
-    public GameObject playerPrefab, enemyPrefab, WON, LOST;
+    public GameObject playerPrefab, enemyPrefab, WON, LOST, critHit;
     Stats PlayerUnit, EnemyUnit;
     public Transform playerLocation, enemyLocation;
     public BattleHUD playerHUD, enemyHUD;
+    public AudioClip Crit;
 
 
     void Start()
     {
         State = BattleState.START;
+        playerPrefab.SetActive(true);
+        enemyPrefab.SetActive(true);
         StartCoroutine(SetupBattle());
     }
     IEnumerator SetupBattle()
@@ -47,7 +50,8 @@ public class battleSystem : MonoBehaviour
             bool isDead = EnemyUnit.TakeDamage(atk1);
             enemyHUD.HP.text = EnemyUnit.currentHP.ToString();
             State = BattleState.ENEMYTURN;
-            CombatLog.text += atk1.ToString() + "dmg dealt to enemy." + "\n";
+            CombatLog.text +=  atk1.ToString() + "dmg dealt to enemy." + "\n";
+            CombatLog.color = Color.blue;
             yield return new WaitForSeconds(2);
 
             if (isDead)
@@ -68,20 +72,31 @@ public class battleSystem : MonoBehaviour
     {
         if (State == BattleState.PLAYERTURN)
         {
-            int hitChance = 45;
+            int hitChance = 75;
             bool isDead = false;
+            int atk2;
             if (Random.Range(0, 100) <= hitChance)
             {
-            int atk2 = Random.Range(5, 9);
+            atk2 = Random.Range(5, 10);
             isDead = EnemyUnit.TakeDamage(atk2);
             //CombatLog.text = currentHP + "-" + dmg; idk tryna figure out the log
             enemyHUD.HP.text = EnemyUnit.currentHP.ToString();
             CombatLog.text += atk2.ToString() + "dmg dealt to enemy." + "\n";
+            CombatLog.color = Color.blue;            
+                if (atk2 >= 7)
+                {
+                    GetComponent<AudioSource>().Play();
+                    Instantiate(critHit, enemyLocation);
+                    CombatLog.text += "It was a critical hit!" + "\n";
+                }
             }
             else
             {
                 CombatLog.text += ("Attack missed!" + "\n");
+                CombatLog.color = Color.red;
             }
+
+
 
             State = BattleState.ENEMYTURN;
             yield return new WaitForSeconds(2);
@@ -105,7 +120,8 @@ public class battleSystem : MonoBehaviour
         {
         int healAmt = Random.Range(2, 6) ;
         PlayerUnit.Heal(healAmt);
-        CombatLog.text += "+" + healAmt.ToString() + " HP healed!" + "\n"; 
+        CombatLog.text += "+" + healAmt.ToString() + " HP healed!" + "\n";
+        CombatLog.color = Color.green;
         playerHUD.HP.text = PlayerUnit.currentHP.ToString();
         State = BattleState.ENEMYTURN;
         yield return new WaitForSeconds(2);
@@ -118,27 +134,37 @@ public class battleSystem : MonoBehaviour
     void EndBattle()
     {
         if (State == BattleState.WON)
-        {
+        {            
+            enemyPrefab.SetActive(false);
             WON.SetActive(true);
-            //enemyPrefab.SetActive(false);
         }
 
         else if (State == BattleState.LOST)
         {
+            playerPrefab.SetActive(false);            
             LOST.SetActive(true);
-            //playerPrefab.SetActive(false);
-
         }
 
     }
 
     IEnumerator EnemyTurn()
     {
-        int EnemyAtk = Random.Range(4, 8);
-        bool isDead = PlayerUnit.TakeDamage(EnemyAtk);
-        CombatLog.text += EnemyAtk.ToString() + "dmg dealt to you." + "\n";
-        playerHUD.HP.text = PlayerUnit.currentHP.ToString();
-        yield return new WaitForSeconds(1);
+        int hitChance = 85;
+        bool isDead = false;
+        if (Random.Range(0, 100) <= hitChance)
+        {
+            int EnemyAtk = Random.Range(3, 8);
+            isDead = PlayerUnit.TakeDamage(EnemyAtk);
+            CombatLog.text += EnemyAtk.ToString() + "dmg dealt to you." + "\n";
+            CombatLog.color = Color.red;
+            playerHUD.HP.text = PlayerUnit.currentHP.ToString();
+            yield return new WaitForSeconds(1);
+        }
+        else
+        {
+            CombatLog.text += ("Enemy attack missed!" + "\n");
+            CombatLog.color = Color.red;
+        }
 
         if (isDead)
         {

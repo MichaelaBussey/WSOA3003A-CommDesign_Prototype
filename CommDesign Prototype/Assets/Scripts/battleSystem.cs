@@ -12,7 +12,7 @@ public class battleSystem : MonoBehaviour
 {
     public BattleState State;
     public Text CombatLog;
-    public GameObject playerPrefab, enemyPrefab, WON, LOST, critHit;
+    public GameObject playerPrefab, enemyPrefab, WON, LOST, critHit, winBox, loseBox, End;
     Stats PlayerUnit, EnemyUnit;
     public Transform playerLocation, enemyLocation;
     public BattleHUD playerHUD, enemyHUD;
@@ -125,7 +125,7 @@ public class battleSystem : MonoBehaviour
     {
         if( State == BattleState.PLAYERTURN)
         {
-        int healAmt = Random.Range(2, 6) ;
+        int healAmt = Random.Range(3, 7) ;
         PlayerUnit.Heal(healAmt);
         GetComponent<AudioSource>().clip = Heal;
         GetComponent<AudioSource>().Play();
@@ -144,14 +144,16 @@ public class battleSystem : MonoBehaviour
     {
         if (State == BattleState.WON)
         {            
-            enemyPrefab.SetActive(false);
+            winBox.SetActive(true);
             WON.SetActive(true);
+            End.SetActive(true);
         }
 
         else if (State == BattleState.LOST)
         {
-            playerPrefab.SetActive(false);            
+            loseBox.SetActive(true);            
             LOST.SetActive(true);
+            End.SetActive(true);
         }
 
     }

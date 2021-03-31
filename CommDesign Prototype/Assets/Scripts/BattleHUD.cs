@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class BattleHUD : MonoBehaviour
 {
-    public Text HP; 
+    public Text HP;
+
 
     public void SetHUD (Stats unit)
     {
